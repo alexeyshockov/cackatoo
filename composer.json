@@ -1,0 +1,53 @@
+{
+    "name": "alexeyshockov/cackatoo",
+    "description": "Ops view on projects",
+    "autoload": {
+        "psr-0": { "": "src/" }
+    },
+    "require": {
+        "php": ">=5.4.0",
+
+        "symfony/symfony": ">=2.1.0, <2.1.x-dev",
+        "twig/twig":       ">=1.10.0, <1.11.x-dev",
+        "twig/extensions": "dev-master",
+        "monolog/monolog": ">=1.2.1, <1.2.x-dev",
+
+        "symfony/monolog-bundle":        ">=2.1.0, <2.1.x-dev",
+        "sensio/framework-extra-bundle": ">=2.1.0, <2.1.x-dev",
+        "sensio/distribution-bundle":    ">=2.1.0, <2.1.x-dev",
+
+        "jms/security-extra-bundle": ">=1.2.0, <1.2.x-dev",
+        "jms/di-extra-bundle":       ">=1.1.0, <1.1.x-dev",
+
+        "doctrine/common": ">=2.3.0, <2.3.x-dev",
+        "doctrine/dbal":   ">=2.3.0, <2.3.x-dev",
+        "doctrine/orm":    ">=2.3.0, <2.3.x-dev",
+
+        "doctrine/doctrine-bundle": ">=1.0.0, <1.0.x-dev",
+
+        "alexeyshockov/colada": "dev-master",
+        "alexeyshockov/clock":  "dev-master",
+
+        "beberlei/loggly-bundle": "0.0.1",
+
+        "kriswallsmith/buzz": "v0.7"
+    },
+    "scripts": {
+        "post-install-cmd": [
+            "Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::clearCache",
+            "Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::installAssets"
+        ],
+        "post-update-cmd": [
+            "Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::clearCache",
+            "Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::installAssets"
+        ]
+    },
+    "config": {
+        "bin-dir": "bin"
+    },
+    "minimum-stability": "dev",
+    "extra": {
+        "symfony-app-dir": "app",
+        "symfony-web-dir": "web"
+    }
+}
