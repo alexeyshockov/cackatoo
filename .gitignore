@@ -1,0 +1,16 @@
+build/
+
+web/bundles/
+
+app/cache/*
+app/logs/*
+
+vendor/
+composer.phar
+
+/app/config/parameters.yml
+/app/config/projects.yml
+/app/config/nginx/host.nginx.conf
+/app/config/nginx/nginx.conf
+
+!.gitkeep
