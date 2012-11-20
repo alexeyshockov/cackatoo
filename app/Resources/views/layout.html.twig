@@ -53,6 +53,14 @@
     <div class="container">
         <h1>{{ block('title') }}</h1>
 
+        {% if app.session.flashBag.has('messages') %}
+            {% for flashMessage in app.session.flashBag.get('messages') %}
+                <div class="alert alert-info">
+                    {{ flashMessage }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
         {% block body %}{% endblock %}
     </div>
 

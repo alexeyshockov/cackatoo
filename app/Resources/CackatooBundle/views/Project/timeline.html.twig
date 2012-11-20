@@ -20,14 +20,16 @@
             <th>Version</th>
             <th>Deployed At</th>
             <th>User</th>
+            <th>Error</th>
         </tr>
     </thead>
     <tbody>
         {% for deploy in project.timeline %}
-        <tr>
+        <tr{% if deploy.failed %} class="alert alert-error"{% endif %}>
             <td>{{ deploy.version }}</td>
-            <td>{{ deploy.endedAt }}</td>
-            <td>{{ deploy.user.username }}</td>
+            <td>{{ deploy.endedAt.orElse('In progress...') }} ({{ deploy.duration }} sec)</td>
+            <td>{{ deploy.userName }}</td>
+            <td>{{ deploy.error }}</td>
         </tr>
         {% endfor %}
     </tbody>

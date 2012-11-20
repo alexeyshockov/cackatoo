@@ -6,6 +6,8 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 use Doctrine\ORM\Mapping as ORM;
 
+use Clock\DateTime;
+
 /**
  * @ORM\Entity
  *
@@ -53,7 +55,7 @@ class Deploy
     private $user;
 
     /**
-     * @ORM\Column(type="json_array", nullable=true)
+     * @ORM\Column(type="text", nullable=true)
      *
      * @var array
      */
@@ -88,11 +90,24 @@ class Deploy
     }
 
     /**
-     * @return \DateTime
+     * @return \Colada\Option
      */
     public function getEndedAt()
     {
-        return $this->endedAt;
+        $option = option(null);
+        if ($this->endedAt) {
+            $option = option(new DateTime($this->endedAt));
+        }
+
+        return $option;
+    }
+
+    /**
+     * @return int
+     */
+    public function getDuration()
+    {
+        return $this->getEndedAt()->orElse(new DateTime())->diff($this->startedAt)->toSeconds();
     }
 
     /**
@@ -121,7 +136,7 @@ class Deploy
      */
     public function getStartedAt()
     {
-        return $this->startedAt;
+        return new DateTime($this->startedAt);
     }
 
     public function getUserName()
@@ -129,12 +144,19 @@ class Deploy
         return $this->user;
     }
 
+    /**
+     * @internal
+     *
+     * @param \DateTime $endedAt
+     */
     public function setEndedAt(\DateTime $endedAt)
     {
         $this->endedAt = $endedAt;
     }
 
     /**
+     * @internal
+     *
      * @param string $error
      */
     public function setError($error)
@@ -142,9 +164,20 @@ class Deploy
         $this->error = $error;
     }
 
+    /**
+     * @return bool
+     */
     public function isFailed()
     {
         return !is_null($this->error);
+    }
+
+    /**
+     * @return bool
+     */
+    public function isSuccessful()
+    {
+        return is_null($this->error);
     }
 
     /**

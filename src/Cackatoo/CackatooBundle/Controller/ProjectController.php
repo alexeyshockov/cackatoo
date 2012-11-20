@@ -11,6 +11,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 use Cackatoo\Model\Deploy;
 
+use Cackatoo\Exception\DeployException;
+
 /**
  * @Route("/projects")
  *
@@ -34,14 +36,6 @@ class ProjectController extends Controller
     private function getDeployer()
     {
         return $this->get('cackatoo.deployer');
-    }
-
-    /**
-     * @return \Cackatoo\Deployer
-     */
-    private function notifyAbout(Deploy $deploy)
-    {
-        // TODO Notify New Relic.
     }
 
     /**
@@ -82,29 +76,51 @@ class ProjectController extends Controller
      *
      * @return array
      */
-    // TODO Тут бы нужен REST, чтобы дёргать из Жени. Чтобы выкладка была реально из одного места. Аутентификацию можно
-    // сделать по SSL-сертификатам, чтобы не заморачиваться с OAuth.
     public function deployAction(Request $request, $project)
     {
-        $pm = $this->getProjectManager();
+        $projectManager = $this->getProjectManager();
 
-        $project = $pm->findBy($project)->orThrow($this->createNotFoundException());
+        $project = $projectManager->findBy($project)->orThrow($this->createNotFoundException());
 
-        $templateParameters = ['project' => $project];
+        $templateParameters = [
+            'project' => $project,
+            'errors'  => [],
+            'version' => $project->getLatestVersion()
+        ];
 
         if ($request->isMethod('POST')) {
             // TODO Refactor to form...
             $version = $request->get('deploy')['version'];
 
+            $templateParameters['version'] = $version;
+
             // TODO Validate version (by .deb repository lookup).
 
-            $deploy = $pm->startDeployFor($project, $version);
+            // TODO Don't do anything, if version are the same as current.
 
-            $this->getDeployer()->process($deploy);
+            $deploy = $projectManager->startDeployFor($project, $version);
 
-            $pm->endDeploy($deploy);
+            try {
+                $this->getDeployer()->process($deploy);
+            } catch (DeployException $exception) {
+                $deploy->setError($exception->getMessage());
 
-            $this->notifyAbout($deploy);
+                $templateParameters['errors'][] = $exception->getMessage();
+            }
+
+            $projectManager->endDeploy($deploy);
+
+            if ($deploy->isSuccessful()) {
+                // https://github.com/symfony/symfony/blob/master/UPGRADE-2.1.md#session
+                $request->getSession()->getFlashBag()->add('messages', 'Successfully deployed.');
+
+                return $this->redirect(
+                    $request->headers->get(
+                        'Referer',
+                        $this->generateUrl('project_deploy', ['project' => $project->getCode()])
+                    )
+                );
+            }
 
             $templateParameters['deploy'] = $deploy;
         }

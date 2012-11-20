@@ -4,8 +4,9 @@
 
 {% block body %}
 
-{# TODO Errors from all fields. #}
-{{ form.errors }}
+{% for error in errors %}
+    <div class="alert alert-error">{{ error }}</div>
+{% endfor %}
 
 <form action="{{ path('project_deploy', { 'project': project.code }) }}" method="post" class="well">
     <input
@@ -15,7 +16,7 @@
         required
         style="margin-bottom: 0px;"
         {# FIXME Field's value. #}
-        value="{{ project.latestVersion }}">
+        value="{{ version }}">
 
     <input type="submit" value="Deploy!" class="btn btn-danger">
 </form>

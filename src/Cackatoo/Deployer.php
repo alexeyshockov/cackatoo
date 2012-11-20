@@ -8,6 +8,8 @@ use Cackatoo\Model\Deploy;
 use Cackatoo\Model\Project;
 use Cackatoo\Manager\ProjectManager;
 
+use Cackatoo\Exception\DeployException;
+
 /**
  * For Puppet deploy at this time.
  *
@@ -39,6 +41,11 @@ class Deployer
         $this->versionFile    = $versionFile;
     }
 
+    /**
+     * @throws \Cackatoo\DeployException
+     *
+     * @param \Cackatoo\Model\Deploy $deploy
+     */
     public function process(Deploy $deploy)
     {
         $project = $this->projectManager->findBy($deploy->getProjectCode())
@@ -46,28 +53,25 @@ class Deployer
 
         $this->updateVersionFor($project, $deploy->getVersion());
 
-        list($status, $output) = $this->kickNodesFor($project);
-
-        if (!$status) {
-            throw new \RuntimeException('Deploy error.');
-        }
+        $this->kickNodesFor($project);
     }
 
-    /**
-     * @param \Cackatoo\Model\Project $project
-     *
-     * @return array Suitable for list($status, $output).
-     */
     private function kickNodesFor(Project $project)
     {
         $nodes = $project->getNodes();
 
-        $output = system('/usr/bin/puppet kick --foreground '.implode(' ', $nodes), $status);
+        ob_start();
 
-        return [$status, $output];
+        passthru('/usr/bin/puppet kick --foreground '.implode(' ', $nodes), $status);
+
+        $output = ob_get_clean();
+
+        if ($status) {
+            // TODO More information.
+            throw new DeployException('Host update (puppet kick) failed.');
+        }
     }
 
-    // TODO Handle errors.
     private function updateVersionFor(Project $project, $version)
     {
         $versions = [];
@@ -80,13 +84,13 @@ class Deployer
         $file = @fopen($this->versionFile, 'w');
 
         if (false === $file) {
-            throw new \RuntimeException('Unable to write version.');
+            throw new DeployException('Unable to write version (file: '.$this->versionFile.').');
         }
 
         $result = @fputcsv($file, $versions);
 
         if (false === $result) {
-            throw new \RuntimeException('Unable to write version.');
+            throw new DeployException('Unable to write version (file: '.$this->versionFile.').');
         }
     }
 }

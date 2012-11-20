@@ -75,7 +75,7 @@ class Project
      */
     public function getCurrentVersion()
     {
-        return $this->getTimeline()->head()->mapBy(x()->getVersion())->orNull();
+        return $this->getSuccessfulDeploys()->head()->mapBy(x()->getVersion())->orNull();
     }
 
     /**
@@ -101,6 +101,14 @@ class Project
     public function getTimeline()
     {
         return $this->timeline;
+    }
+
+    /**
+     * @return \Colada\Collection
+     */
+    public function getSuccessfulDeploys()
+    {
+        return $this->timeline->rejectBy(x()->isFailed());
     }
 
     /**
