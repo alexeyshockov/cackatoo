@@ -30,15 +30,22 @@ class Deployer
     private $versionFile;
 
     /**
+     * @var string
+     */
+    private $puppetCommand;
+
+    /**
      * @DI\InjectParams({
      *     "projectManager" = @DI\Inject("cackatoo.project_manager"),
      *     "versionFile"    = @DI\Inject("%version_file%"),
+     *     "puppetCommand"  = @DI\Inject("%puppet_command%"),
      * })
      */
-    public function __construct(ProjectManager $projectManager, $versionFile)
+    public function __construct(ProjectManager $projectManager, $versionFile, $puppetCommand)
     {
         $this->projectManager = $projectManager;
         $this->versionFile    = $versionFile;
+        $this->puppetCommand  = $puppetCommand;
     }
 
     /**
@@ -62,7 +69,7 @@ class Deployer
 
         ob_start();
 
-        passthru('/usr/bin/puppet kick --foreground '.implode(' ', $nodes), $status);
+        passthru($this->puppetCommand.' kick --foreground '.implode(' ', $nodes), $status);
 
         $output = ob_get_clean();
 

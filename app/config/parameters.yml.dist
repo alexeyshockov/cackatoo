@@ -7,6 +7,8 @@ parameters:
     locale: ru
     secret: SqiQ6RxJ1cAjDtEB
 
+    puppet_command: "sudo /usr/bin/puppet"
+
     # Projects version for using in Puppet.
     version_file: /etc/puppet/manifests/projects_versions.csv
 
