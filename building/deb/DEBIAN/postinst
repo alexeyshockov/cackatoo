@@ -22,3 +22,5 @@ done
 # And start services...
 # TODO Configured (/etc/defaults/project)? No? Check, and not start services!
 invoke-rc.d php5-fpm reload
+
+# TODO And remove old cache (all folders except for current version).

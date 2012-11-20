@@ -122,8 +122,8 @@
         <!-- For cache... -->
         <replace
             file="${basedir}/build/deb/usr/share/${ant.project.name}/app/AppKernel.php"
-            token="return $this->rootDir.'/cache"
-            value="return '/var/cache/${ant.project.name}" />
+            token="return $this->rootDir.'/cache/'.$this->getEnvironment();"
+            value="return '/var/cache/${ant.project.name}/'.static::VERSION;" />
         <!-- For logs... -->
         <replace
             file="${basedir}/build/deb/usr/share/${ant.project.name}/app/AppKernel.php"
