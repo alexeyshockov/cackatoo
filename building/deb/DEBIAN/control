@@ -1,0 +1,7 @@
+Package: cackatoo
+Version: @version@
+Architecture: all
+Depends: nginx (>= 1.0.0), php5-apc (>= 5.4.0), php5-fpm (>= 5.4.0), php5-intl (>= 5.4.0), php5-mysqlnd (>= 5.4.0) | php5-mysql (>= 5.4.0)
+Recommends: php5-suhosin
+Maintainer: Alexey Shockov <alexey@shockov.com>
+Description: DevOps projects dashboard

@@ -1,0 +1,17 @@
+#! /bin/sh
+
+PATH=/sbin:/usr/sbin:/bin:/usr/bin
+
+case "$1" in
+  restart)
+	echo "Clearing cache..."
+	cackatoo cache:clear > /dev/null
+
+	invoke-rc.d nginx    reload
+	invoke-rc.d php5-fpm reload
+	;;
+  *)
+	echo "Usage: $SCRIPTNAME {restart}" >&2
+	exit 3
+	;;
+esac

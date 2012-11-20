@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="cackatoo" default="build-deb-package" basedir=".">
+    <property name="version" value="0" />
+
+    <target name="install-deps" description="Install dependencies.">
+        <exec executable="wget" failonerror="true">
+            <arg value="-nc" />
+            <arg value="-q" />
+            <arg value="http://getcomposer.org/composer.phar" />
+        </exec>
+        <exec executable="php" failonerror="true">
+            <arg value="composer.phar" />
+            <arg value="--quiet" />
+            <arg value="self-update" />
+        </exec>
+        <exec executable="php" failonerror="true">
+            <arg value="composer.phar" />
+            <arg value="--quiet" />
+            <arg value="install" />
+        </exec>
+    </target>
+
+    <target name="clean-application-cache"
+        description="Clean application cache for disable side effects.">
+        <delete includeemptydirs="true">
+            <fileset dir="${basedir}/app/cache" defaultexcludes="false">
+               <include name="**/*" />
+               <exclude name="**/.gitkeep" />
+            </fileset>
+        </delete>
+    </target>
+
+    <target
+        name="clean"
+        description="Clean up and create artifact directories.">
+        <delete dir="${basedir}/build" />
+
+        <mkdir dir="${basedir}/build" />
+        <mkdir dir="${basedir}/build/reports" />
+        <mkdir dir="${basedir}/build/reports/junit/phpunit" />
+    </target>
+
+    <target
+        name="build-deb-package">
+        <!-- Package metadata files. -->
+        <mkdir dir="${basedir}/build/deb" />
+        <copy todir="${basedir}/build/deb">
+            <fileset dir="${basedir}/building/deb">
+                <include name="**" />
+            </fileset>
+        </copy>
+
+        <!-- Source code files. -->
+        <copy todir="${basedir}/build/deb/usr/share/${ant.project.name}">
+            <fileset dir="${basedir}">
+                <include name="src/**" />
+                <include name="app/**" />
+                <include name="web/**" />
+                <include name="vendor/**" />
+
+                <exclude name="building/**" />
+                <exclude name="app/cache/**" />
+                <exclude name="app/logs/**" />
+                <exclude name="**/.git/**" />
+                <exclude name="**/.gitignore" />
+                <exclude name="**/.gitkeep" />
+
+                <exclude name="web/app_dev.php" />
+
+                <exclude name="app/config/parameters.yml" />
+                <exclude name="app/config/projects.yml" />
+                <exclude name="app/config/nginx/host.nginx.conf" />
+                <exclude name="app/config/nginx/nginx.conf" />
+
+                <exclude name="app/config/*_dev.yml" />
+                <exclude name="app/config/*_test.yml" />
+
+                <exclude name="**/*.dist" />
+            </fileset>
+        </copy>
+
+        <!-- Configuration files. -->
+        <copy todir="${basedir}/build/deb/usr/share/${ant.project.name}/app/config/">
+            <fileset dir="${basedir}/app/config">
+                <include name="nginx/host.nginx.conf.dist" />
+            </fileset>
+            <mapper>
+                <chainedmapper>
+                    <mapper type="glob" from="*.dist" to="*"/>
+                </chainedmapper>
+            </mapper>
+        </copy>
+
+        <!-- Default environment for production. -->
+        <replace
+            file="${basedir}/build/deb/usr/share/${ant.project.name}/app/console"
+            token="(getenv('SYMFONY_ENV') ?: 'dev')"
+            value="(getenv('SYMFONY_ENV') ?: 'prod')" />
+
+        <!-- Version. -->
+        <replace file="${basedir}/build/deb/DEBIAN/control" token="@version@" value="${version}" />
+        <replace
+            file="${basedir}/build/deb/usr/share/${ant.project.name}/app/AppKernel.php"
+            token="const VERSION = 0"
+            value="const VERSION = ${version}" />
+
+        <!-- New paths. -->
+        <replace
+            dir="${basedir}/build/deb/usr/share/${ant.project.name}/app/config"
+            token="/var/www"
+            value="/usr/share" />
+        <!-- For parameters... -->
+        <replace
+            file="${basedir}/build/deb/usr/share/${ant.project.name}/app/config/config.yml"
+            token="parameters.yml"
+            value="/etc/${ant.project.name}/parameters.yml" />
+        <replace
+            file="${basedir}/build/deb/usr/share/${ant.project.name}/app/config/config.yml"
+            token="projects.yml"
+            value="/etc/${ant.project.name}/projects.yml" />
+        <!-- For cache... -->
+        <replace
+            file="${basedir}/build/deb/usr/share/${ant.project.name}/app/AppKernel.php"
+            token="return $this->rootDir.'/cache"
+            value="return '/var/cache/${ant.project.name}" />
+        <!-- For logs... -->
+        <replace
+            file="${basedir}/build/deb/usr/share/${ant.project.name}/app/AppKernel.php"
+            token="return $this->rootDir.'/logs"
+            value="return '/var/log/${ant.project.name}" />
+
+        <!-- Permissions. Only after all modifications! -->
+        <chmod file="${basedir}/build/deb/usr/sbin/${ant.project.name}" perm="a+x" />
+        <chmod file="${basedir}/build/deb/etc/init.d/${ant.project.name}" perm="a+x" />
+        <chmod file="${basedir}/build/deb/usr/share/${ant.project.name}/app/console" perm="a+x" />
+        <chmod perm="a+x">
+            <fileset dir="${basedir}/build/deb/DEBIAN">
+                <include name="preinst" />
+                <include name="postinst" />
+            </fileset>
+        </chmod>
+
+        <exec executable="fakeroot">
+            <arg value="dpkg-deb" />
+            <arg value="-b" />
+            <arg path="${basedir}/build/deb" />
+
+            <arg path="${basedir}/build/${ant.project.name}_${version}_all.deb" />
+        </exec>
+    </target>
+</project>

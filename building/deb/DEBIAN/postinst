@@ -1,0 +1,24 @@
+#!/bin/sh
+
+set -e
+
+CACHEDIR="/var/cache/cackatoo"
+
+for dir in $CACHEDIR do
+    if [ ! -d $dir ]
+    then
+        mkdir $dir
+        chown www-data:www-data $dir
+        chmod 750 $dir
+    fi
+done
+
+
+
+# TODO Warm up cache (app/console cache:clear).
+
+
+
+# And start services...
+# TODO Configured (/etc/defaults/project)? No? Check, and not start services!
+invoke-rc.d php5-fpm reload

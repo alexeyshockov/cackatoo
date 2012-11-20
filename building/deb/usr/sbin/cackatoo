@@ -1,0 +1,3 @@
+#!/bin/bash
+
+sudo -u www-data php /usr/share/cackatoo/app/console -e=prod $@
