@@ -1,5 +1,7 @@
 build/
 
+bin/
+
 web/bundles/
 
 app/cache/*
