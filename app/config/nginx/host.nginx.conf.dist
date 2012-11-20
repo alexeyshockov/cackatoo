@@ -1,0 +1,18 @@
+root /var/www/cackatoo/web;
+
+index app.php;
+
+try_files $uri @app;
+
+location @app {
+    rewrite ^/(.*)$ /app.php/$1;
+}
+
+location = /favicon.ico {
+    log_not_found off;
+    access_log    off;
+}
+
+location ~ \..*/.*\.php$ {
+    return 403;
+}

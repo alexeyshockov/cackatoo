@@ -1,0 +1,25 @@
+parameters:
+    database_host:     localhost
+    database_name:     cackatoo
+    database_user:     root
+    database_password:
+
+    locale: ru
+    secret: SqiQ6RxJ1cAjDtEB
+
+    # Projects version for using in Puppet.
+    version_file: /etc/puppet/manifests/projects_versions.csv
+
+    users:
+        administrator: { roles: [ "ROLE_USER" ], password: test }
+
+    deb:
+        repositories:
+            projects:
+                packages_url: https://prj.deb.example.com/Packages
+                authentication:
+                    ssl:
+                        certificate: /var/lib/puppet/ssl/certs/hostname.pem
+                        key:         /var/lib/puppet/ssl/private_keys/hostname.pem
+
+    links: []

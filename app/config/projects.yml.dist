@@ -1,0 +1,12 @@
+parameters:
+    projects:
+        cackatoo:
+            domain: cackatoo.local
+            links:
+                - { title: "Logs", href: "http://example.com/logs/cackatoo" }
+            nodes:
+                - prod
+            github:
+                repository: alexeyshockov/cackatoo
+            jenkins:
+                job: cackatoo
