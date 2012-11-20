@@ -4,11 +4,11 @@ set -e
 
 CACHEDIR="/var/cache/cackatoo"
 
-for dir in $CACHEDIR do
-    if [ ! -d $dir ]
-    then
+for dir in $CACHEDIR; do
+    if [ ! -d $dir ]; then
         mkdir $dir
-        chown www-data:www-data $dir
+        # This application will usually run from root user...
+#        chown www-data:www-data $dir
         chmod 750 $dir
     fi
 done
