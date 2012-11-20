@@ -1,0 +1,8 @@
+CackatooBundle:
+    resource: "@CackatooBundle/Controller/"
+    type:     annotation
+    prefix:   /
+
+_profiler:
+    resource: "@WebProfilerBundle/Resources/config/routing/profiler.xml"
+    prefix:   /_profiler

@@ -1,0 +1,40 @@
+{% extends '::layout.html.twig' %}
+
+{% block title %}Projects{% endblock %}
+
+{% block body %}
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th>Project</th>
+            <th>Current Version</th>
+            <th>Latest Version</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for project in projects %}
+        <tr{% if project.outdated %} class="info"{% endif %}>
+            <td>
+                <a href="{{ path('project_timeline', { 'project': project.code }) }}">{{ project.code }}</a>
+            </td>
+            <td>{{ project.currentVersion }}</td>
+            <td>
+                <dl>
+                    <dt>{{ project.latestVersion }}</dt>
+                    {# TODO Jenkins URL. #}
+                    <dd><a href="#">Jenkins</a></dd>
+                </dl>
+            </td>
+            <td>
+                {% if project.outdated %}
+                    <form action="{{ path('project_deploy', { 'project': project.code }) }}" method="post">
+                        <input type="submit" value="Deploy latest!" class="btn btn-danger">
+                    </form>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

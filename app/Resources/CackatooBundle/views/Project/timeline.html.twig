@@ -1,0 +1,35 @@
+{% extends '::layout.html.twig' %}
+
+{% block title %}Project Timeline <small>{{ project.code }}</small>{% endblock %}
+
+{% block body %}
+<form action="{{ path('project_deploy', { 'project': project.code }) }}" method="post" class="well">
+    <input
+        name="deploy[version]"
+        type="text"
+        placeholder="Version (69, by example)"
+        required
+        style="margin-bottom: 0px;"
+        value="{{ project.latestVersion }}">
+
+    <input type="submit" value="Deploy!" class="btn btn-danger">
+</form>
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th>Version</th>
+            <th>Deployed At</th>
+            <th>User</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for deploy in project.timeline %}
+        <tr>
+            <td>{{ deploy.version }}</td>
+            <td>{{ deploy.endedAt }}</td>
+            <td>{{ deploy.user.username }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

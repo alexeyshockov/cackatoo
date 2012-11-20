@@ -1,0 +1,59 @@
+imports:
+    - { resource: parameters.yml }
+    - { resource: projects.yml }
+    - { resource: security.yml }
+
+framework:
+    secret:          %secret%
+    router:
+        resource:            "%kernel.root_dir%/config/routing.yml"
+        strict_requirements: %kernel.debug%
+    form:            true
+    csrf_protection: true
+    validation:      { enable_annotations: true }
+    templating:      { engines: ['twig', 'php'] }
+    default_locale:  %locale%
+    session:
+        # Path outside cache directory (see https://gist.github.com/3473118).
+        # TODO Move to parameters...
+        save_path: "/var/tmp/cackatoo/sessions"
+
+# Twig Configuration
+twig:
+    debug:            %kernel.debug%
+    strict_variables: %kernel.debug%
+
+# Doctrine Configuration
+doctrine:
+    dbal:
+        driver:    pdo_mysql
+        host:      %database_host%
+        dbname:    %database_name%
+        user:      %database_user%
+        password:  %database_password%
+        charset:   utf8
+        profiling: %kernel.debug%
+        options:
+            # Time zone to UTC for connection (1002 - PDO::MYSQL_ATTR_INIT_COMMAND).
+            1002: "SET time_zone='+0:00'"
+    orm:
+        auto_generate_proxy_classes: %kernel.debug%
+        # Automatically map entities to default entity manager.
+        auto_mapping:                true
+        naming_strategy:             doctrine.orm.naming_strategy.underscore
+        mappings:
+            model:
+                type:   annotation
+                dir:    %kernel.root_dir%/../src/Cackatoo/Model
+                prefix: Cackatoo\Model
+
+monolog:
+    handlers:
+        syslog:
+            type:      syslog
+            ident:     %kernel.name%
+            facility:  daemon
+
+jms_di_extra:
+    locations:
+        directories: %kernel.root_dir%/../src

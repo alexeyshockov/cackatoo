@@ -1,0 +1,13 @@
+{% extends '::layout.html.twig' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block body %}
+    <dl>
+        <dd></dd>
+        {% for link in links %}
+            <dt>{{ link.title }}</dt>
+            <dd><a href="{{ link.href }}">{{ link.href }}</a></dd>
+        {% endfor %}
+    </dl>
+{% endblock %}
