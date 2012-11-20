@@ -7,18 +7,18 @@
             "source": {
                 "type": "git",
                 "url": "git://github.com/alexeyshockov/clock.git",
-                "reference": "f776b6776c7acd1cb245ba40b68d87a17932d07a"
+                "reference": "3445e377a1514a1cbc091c20d06c14f486059679"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://github.com/alexeyshockov/clock/zipball/f776b6776c7acd1cb245ba40b68d87a17932d07a",
-                "reference": "f776b6776c7acd1cb245ba40b68d87a17932d07a",
+                "url": "https://github.com/alexeyshockov/clock/archive/3445e377a1514a1cbc091c20d06c14f486059679.zip",
+                "reference": "3445e377a1514a1cbc091c20d06c14f486059679",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.3.2"
             },
-            "time": "1349945342",
+            "time": "1353437803",
             "type": "library",
             "installation-source": "source",
             "autoload": {
