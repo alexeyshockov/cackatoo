@@ -79,11 +79,21 @@ class Deployer
         }
     }
 
+    /**
+     * @throws Exception\DeployException
+     *
+     * @param Model\Project $project
+     * @param string        $version
+     */
     private function updateVersionFor(Project $project, $version)
     {
+        if (!is_string($version)) {
+            throw new \InvalidArgumentException('Version must be a string.');
+        }
+
         $rows = [];
         if (file_exists($this->versionFile)) {
-            $rows = str_getcsv(file_get_contents($this->versionFile));
+            $rows = array_map('str_getcsv', file($this->versionFile));
         }
 
         // TODO Replace with Colada.
@@ -112,10 +122,12 @@ class Deployer
             throw new DeployException('Unable to write version (file: '.$this->versionFile.').');
         }
 
-        $result = @fputcsv($file, $rows);
+        foreach ($rows as $row) {
+            $result = @fputcsv($file, $row);
 
-        if (false === $result) {
-            throw new DeployException('Unable to write version (file: '.$this->versionFile.').');
+            if (false === $result) {
+                throw new DeployException('Unable to write version (file: '.$this->versionFile.').');
+            }
         }
     }
 }
