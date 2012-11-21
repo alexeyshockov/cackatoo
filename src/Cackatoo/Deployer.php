@@ -81,12 +81,30 @@ class Deployer
 
     private function updateVersionFor(Project $project, $version)
     {
-        $versions = [];
+        $rows = [];
         if (file_exists($this->versionFile)) {
-            $versions = str_getcsv(file_get_contents($this->versionFile));
+            $rows = str_getcsv(file_get_contents($this->versionFile));
         }
 
-        $versions[$project->getCode().'_version'] = $version;
+        // TODO Replace with Colada.
+        $found = false;
+        foreach ($rows as $index => $row) {
+            if ($project->getCode().'_version' == $row[0]) {
+                $rows[$index] = [
+                    $row[0],
+                    $version,
+                ];
+
+                $found = true;
+
+                break;
+            }
+        }
+
+        // New entry.
+        if (!$found) {
+            $rows[] = [$project->getCode().'_version', $version];
+        }
 
         $file = @fopen($this->versionFile, 'w');
 
@@ -94,7 +112,7 @@ class Deployer
             throw new DeployException('Unable to write version (file: '.$this->versionFile.').');
         }
 
-        $result = @fputcsv($file, $versions);
+        $result = @fputcsv($file, $rows);
 
         if (false === $result) {
             throw new DeployException('Unable to write version (file: '.$this->versionFile.').');
