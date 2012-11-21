@@ -96,6 +96,13 @@ class ProjectManager
 
         $latestPackage = $repository
             ->acceptBy(x()->getName()->isEqualTo($this->projects[$code]['deb']['package']))
+            ->sortBy(function($package1, $package2) {
+                return version_compare(
+                    $package1->getVersion(),
+                    $package2->getVersion(),
+                    '<'
+                );
+            })
             ->head();
 
         return option(new Project(
