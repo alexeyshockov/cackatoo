@@ -69,8 +69,39 @@ class ProjectController extends Controller
     }
 
     /**
-     * Выкладываем.
-     *
+     * @Route("/{project}/sync", name="project_sync")
+     * @Route("/sync", name="project_sync_all")
+     * @Method("POST")
+     */
+    public function syncAction(Request $request, $project = null)
+    {
+        $projectManager = $this->getProjectManager();
+
+        try {
+            if ($project) {
+                $project = $projectManager->findBy($project)->orThrow($this->createNotFoundException());
+
+                $this->getDeployer()->syncNodesFor($project);
+            }
+
+            $this->getDeployer()->syncAllNodes();
+
+            // https://github.com/symfony/symfony/blob/master/UPGRADE-2.1.md#session
+            $request->getSession()->getFlashBag()->add('messages', 'Successfully synced.');
+        } catch (\DeployException $exception) {
+            // https://github.com/symfony/symfony/blob/master/UPGRADE-2.1.md#session
+            $request->getSession()->getFlashBag()->add('messages', $exception->getMessage());
+        }
+
+        return $this->redirect(
+            $request->headers->get(
+                'Referer',
+                $this->generateUrl('project_list')
+            )
+        );
+    }
+
+    /**
      * @Route("/{project}/deploy", name="project_deploy")
      * @Template
      *

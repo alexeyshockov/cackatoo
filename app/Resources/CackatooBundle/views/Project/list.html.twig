@@ -35,8 +35,19 @@
                 </dl>
             </td>
             <td>
+                <form
+                        action="{{ path('project_sync', { 'project': project.code }) }}"
+                        style="margin-bottom: 0px; margin-right: 10px;"
+                        class="pull-left"
+                        method="post">
+                    <input type="submit" value="Sync!" class="btn btn-danger">
+                </form>
                 {% if project.outdated %}
-                    <form action="{{ path('project_deploy', { 'project': project.code }) }}" method="post">
+                    <form
+                        action="{{ path('project_deploy', { 'project': project.code }) }}"
+                        style="margin-bottom: 0px;"
+                        class="pull-left"
+                        method="post">
                         <input
                                 name="deploy[version]"
                                 type="hidden"

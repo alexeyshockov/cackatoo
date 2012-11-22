@@ -80,7 +80,7 @@ class Deploy
      * @param string                                              $version
      * @param \Symfony\Component\Security\Core\User\UserInterface $user
      */
-    function __construct(Project $project, $version, UserInterface $user)
+    public function __construct(Project $project, $version, UserInterface $user)
     {
         $this->project = $project->getCode();
         $this->version = $version;

@@ -32,24 +32,24 @@ class Deployer
     /**
      * @var string
      */
-    private $puppetCommand;
+    private $syncCommand;
 
     /**
      * @DI\InjectParams({
      *     "projectManager" = @DI\Inject("cackatoo.project_manager"),
      *     "versionFile"    = @DI\Inject("%version_file%"),
-     *     "puppetCommand"  = @DI\Inject("%puppet_command%"),
+     *     "syncCommand"    = @DI\Inject("%sync_command%"),
      * })
      */
-    public function __construct(ProjectManager $projectManager, $versionFile, $puppetCommand)
+    public function __construct(ProjectManager $projectManager, $versionFile, $syncCommand)
     {
         $this->projectManager = $projectManager;
         $this->versionFile    = $versionFile;
-        $this->puppetCommand  = $puppetCommand;
+        $this->syncCommand    = $syncCommand;
     }
 
     /**
-     * @throws \Cackatoo\DeployException
+     * @throws \Cackatoo\Exception\DeployException
      *
      * @param \Cackatoo\Model\Deploy $deploy
      */
@@ -60,22 +60,36 @@ class Deployer
 
         $this->updateVersionFor($project, $deploy->getVersion());
 
-        $this->kickNodesFor($project);
+        $this->syncNodesFor($project);
     }
 
-    private function kickNodesFor(Project $project)
+    /**
+     * @throws \Cackatoo\Exception\DeployException
+     */
+    public function syncAllNodes()
+    {
+        // TODO Refactor. Get all nodes and process them at once.
+        $this->projectManager->findAll()->eachBy([$this, 'syncNodesFor']);
+    }
+
+    /**
+     * @throws \Cackatoo\Exception\DeployException
+     *
+     * @param \Cackatoo\Model\Project $project
+     */
+    public function syncNodesFor(Project $project)
     {
         $nodes = $project->getNodes();
 
         ob_start();
 
-        passthru($this->puppetCommand.' kick --foreground '.implode(' ', $nodes), $status);
+        passthru($this->syncCommand.' '.implode(' ', $nodes), $status);
 
         $output = ob_get_clean();
 
         if ($status) {
             // TODO More information.
-            throw new DeployException('Host update (puppet kick) failed.');
+            throw new DeployException('Node update failed.');
         }
     }
 
@@ -87,7 +101,7 @@ class Deployer
      */
     private function updateVersionFor(Project $project, $version)
     {
-        if (!is_string($version)) {
+        if (!is_scalar($version)) {
             throw new \InvalidArgumentException('Version must be a string.');
         }
 
