@@ -89,7 +89,7 @@ class ProjectController extends Controller
 
             // https://github.com/symfony/symfony/blob/master/UPGRADE-2.1.md#session
             $request->getSession()->getFlashBag()->add('messages', 'Successfully synced.');
-        } catch (\DeployException $exception) {
+        } catch (DeployException $exception) {
             // https://github.com/symfony/symfony/blob/master/UPGRADE-2.1.md#session
             $request->getSession()->getFlashBag()->add('messages', $exception->getMessage());
         }
